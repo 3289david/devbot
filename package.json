@@ -1,0 +1,22 @@
+{
+  "name": "devbot",
+  "version": "1.0.0",
+  "description": "개발자 뉴스 봇 — 뉴스를 전달하는 게 아니라, 다음에 무엇을 해야 하는지 알려 주는 Discord 봇 (Components V2)",
+  "type": "module",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=20.12"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/index.js",
+    "dev": "node --watch --env-file-if-exists=.env src/index.js",
+    "deploy": "node --env-file-if-exists=.env scripts/deploy.js",
+    "preview": "node --env-file-if-exists=.env scripts/preview.js",
+    "poll:dry": "node --env-file-if-exists=.env scripts/poll-dry.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.1.0",
+    "discord.js": "^14.27.0",
+    "fast-xml-parser": "^5.11.2"
+  }
+}
