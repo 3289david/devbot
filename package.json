@@ -15,7 +15,6 @@
     "poll:dry": "node --env-file-if-exists=.env scripts/poll-dry.js"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^1.1.0",
     "discord.js": "^14.27.0",
     "fast-xml-parser": "^5.11.2"
   }

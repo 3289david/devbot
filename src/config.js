@@ -5,7 +5,8 @@ export const config = {
   clientId: process.env.DISCORD_CLIENT_ID,
   devGuildId: process.env.DEV_GUILD_ID || null,
 
-  anthropicKey: process.env.ANTHROPIC_API_KEY || null,
+  aiApiKey: process.env.AI_API_KEY || null,
+  aiBaseUrl: (process.env.AI_BASE_URL || 'https://monken.cloud/v1').replace(/\/+$/, ''),
   analysisModel: process.env.AI_ANALYSIS_MODEL || 'claude-haiku-5-5',
   askModel: process.env.AI_ASK_MODEL || 'claude-sonnet-5-5',
   askDailyLimit: num(process.env.ASK_DAILY_LIMIT, 30),

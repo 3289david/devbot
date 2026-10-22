@@ -200,7 +200,7 @@ export function setupOverview(g, guildName) {
         `**🚨 역할 핑 기준** ${PRIORITY[g.pingMinPriority].emoji} ${PRIORITY[g.pingMinPriority].ko} 이상  ·  **🤖 AI 버튼** ${onoff(g.askButtons)}`,
         `**📦 보안 생태계** ${g.ecosystems.length ? g.ecosystems.map((e) => `\`${e}\``).join(' ') : '전체'}  ·  **⭐ 트렌딩 최소 별** ${g.trendingMinStars}`,
         `**📡 소스** 기본 ${DEFAULT_SOURCES.length}개 중 ${g.sources.disabled.length}개 끔  ·  커스텀 ${custom}개`,
-        `**🧠 AI 분석** ${aiEnabled ? '🟢 사용 중' : '⚫ 꺼짐 (ANTHROPIC_API_KEY 필요)'}`,
+        `**🧠 AI 분석** ${aiEnabled ? '🟢 사용 중' : '⚫ 꺼짐 (AI_API_KEY 필요)'}`,
       ].join('\n'),
     ),
   );

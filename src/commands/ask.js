@@ -10,7 +10,7 @@ export default {
     .setDescription('개발 관련 질문을 AI에게 물어봐요 (내 스택 기준)')
     .addStringOption((o) => o.setName('question').setDescription('질문').setRequired(true).setMaxLength(600)),
   async execute(interaction) {
-    if (!aiEnabled) return say(interaction, 'AI 기능이 설정되지 않았어요. 관리자가 `ANTHROPIC_API_KEY`를 설정해야 해요.');
+    if (!aiEnabled) return say(interaction, 'AI 기능이 설정되지 않았어요. 관리자가 `AI_API_KEY`를 설정해야 해요.');
     const u = db.user(interaction.user.id);
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const question = interaction.options.getString('question');

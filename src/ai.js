@@ -1,22 +1,29 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { config } from './config.js';
 import { log } from './log.js';
 import { clip, sha } from './util.js';
 import { fixCommand } from './sources/advisories.js';
 
-const client = config.anthropicKey ? new Anthropic({ apiKey: config.anthropicKey }) : null;
-export const aiEnabled = Boolean(client);
+export const aiEnabled = Boolean(config.aiApiKey);
 
 const LANG_NAME = { ko: 'Korean (natural, developer-friendly 해요체/합니다체 mix, keep code identifiers, package names and product names in English)', en: 'English' };
 
+/** OpenAI-compatible /chat/completions call (works with any compatible gateway). */
 async function complete({ model, system, user, maxTokens = 1200 }) {
-  const res = await client.messages.create({
-    model,
-    max_tokens: maxTokens,
-    system,
-    messages: [{ role: 'user', content: user }],
+  const res = await fetch(`${config.aiBaseUrl}/chat/completions`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${config.aiApiKey}` },
+    body: JSON.stringify({
+      model,
+      max_tokens: maxTokens,
+      messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
+    }),
+    signal: AbortSignal.timeout(60000),
   });
-  return res.content.filter((b) => b.type === 'text').map((b) => b.text).join('').trim();
+  if (!res.ok) throw new Error(`AI API ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  const json = await res.json();
+  const out = json.choices?.[0]?.message?.content;
+  if (!out) throw new Error('AI API returned no content');
+  return String(out).trim();
 }
 
 function parseJson(text) {
@@ -153,7 +160,7 @@ function reconcile(a, raw) {
 }
 
 export async function analyze(raw, lang, extra = '') {
-  if (!client) return reconcile(fallbackAnalysis(raw, lang), raw);
+  if (!aiEnabled) return reconcile(fallbackAnalysis(raw, lang), raw);
   try {
     const text = await complete({
       model: config.analysisModel,
@@ -186,7 +193,7 @@ export const PRESETS = {
 const answerCache = new Map();
 
 export async function ask({ item, analysis, question, stack, lang }) {
-  if (!client) return null;
+  if (!aiEnabled) return null;
   const key = sha(`${item.id}|${question}|${stack}|${lang}`);
   if (answerCache.has(key)) return answerCache.get(key);
 
@@ -209,7 +216,7 @@ ${articleBlock({ ...item, meta: item.meta }, '')}
 
 /** Free-form question not tied to a news card. */
 export async function askGeneral({ question, stack, lang }) {
-  if (!client) return null;
+  if (!aiEnabled) return null;
   const system = `You are a senior engineer inside a developer-news Discord bot. Answer in ${LANG_NAME[lang]}, under 1500 characters, practical, with code blocks when useful. If you are unsure about recent releases, say so.`;
   return complete({
     model: config.askModel,
@@ -221,7 +228,7 @@ export async function askGeneral({ question, stack, lang }) {
 
 /** 2–3 sentence editorial lead for weekly briefings. */
 export async function briefingLead(items, lang, kind) {
-  if (!client || !items.length) return null;
+  if (!aiEnabled || !items.length) return null;
   const lines = items.slice(0, 25).map((i) => `- [${i.category}] ${i.analysis?.[lang]?.title ?? i.title} (${i.priority})`).join('\n');
   try {
     return await complete({
